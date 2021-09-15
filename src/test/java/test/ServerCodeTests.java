@@ -14,7 +14,7 @@ import com.franz.agraph.repository.AGQueryLanguage;
 import com.franz.agraph.repository.AGRepositoryConnection;
 import com.franz.agraph.repository.AGServer;
 import junit.framework.Assert;
-import org.apache.commons.httpclient.methods.FileRequestEntity;
+import org.apache.http.entity.FileEntity;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.query.TupleQuery;
@@ -291,7 +291,7 @@ public class ServerCodeTests extends AGAbstractTest {
 
         public void putScript(String path, File script) throws Exception {
             http().put(server.getServerURL() + "/scripts/" + path, null, null,
-                    new FileRequestEntity(script, "text/plain"), null);
+                       new FileEntity(script, "text/plain"), null);
         }
 
         public void deleteScript(String path) throws Exception {
@@ -304,7 +304,7 @@ public class ServerCodeTests extends AGAbstractTest {
 
         public void putInitFile(File script) throws Exception {
             http().put(server.getServerURL() + "/initfile", null, null,
-                    new FileRequestEntity(script, "text/plain"), null);
+                    new FileEntity(script, "text/plain"), null);
         }
 
         public void deleteInitFile() throws Exception {

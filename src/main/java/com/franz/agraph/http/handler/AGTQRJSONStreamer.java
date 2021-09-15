@@ -10,7 +10,8 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.franz.agraph.http.AGHttpRepoClient;
 import com.franz.agraph.http.exception.AGHttpException;
 import com.franz.agraph.repository.AGValueFactory;
-import org.apache.commons.httpclient.HttpMethod;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
@@ -50,9 +51,9 @@ public class AGTQRJSONStreamer extends AGTQRStreamer {
     public String getRequestMIMEType() { return TupleQueryResultFormat.JSON.getDefaultMIMEType(); }
 
     @Override
-    public void handleResponse(HttpMethod method) throws IOException, AGHttpException {
-        this.method = method;
-        in = AGResponseHandler.getInputStream(method);
+    public void handleResponse(HttpResponse httpResponse, HttpUriRequest httpUriRequest) throws IOException, AGHttpException {
+        this.method = httpResponse;
+        in = AGResponseHandler.getInputStream(httpResponse);
     }
 
     @Override
@@ -124,7 +125,7 @@ public class AGTQRJSONStreamer extends AGTQRStreamer {
 
         @Override
         public void close() throws QueryEvaluationException {
-            method.releaseConnection();
+            //method.releaseConnection();
         }
 
         private void parseBindingNames() throws IOException {

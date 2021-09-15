@@ -7,8 +7,6 @@ package com.franz.agraph.pool;
 import com.franz.agraph.repository.AGCatalog;
 import com.franz.agraph.repository.AGRepositoryConnection;
 import com.franz.agraph.repository.AGServer;
-import org.apache.commons.httpclient.params.HttpConnectionParams;
-import org.apache.commons.httpclient.params.HttpMethodParams;
 
 /**
  * Property names to open a {@link AGRepositoryConnection}.
