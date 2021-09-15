@@ -20,6 +20,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.AuthCache;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpDelete;
@@ -93,8 +94,8 @@ public class AGHTTPClient implements AutoCloseable {
 
     private final int httpNumRetries;
 
-    private BasicCredentialsProvider credsProvider;
-    private HttpClientContext context;
+    private CredentialsProvider credsProvider;
+    private AuthCache authCache;
 
     public AGHTTPClient(String serverURL, HttpClientConnectionManager manager) {
         this.serverURL = serverURL.replaceAll("/$", "");
@@ -268,6 +269,9 @@ public class AGHTTPClient implements AutoCloseable {
         // Otherwise we must close the method by the end of this procedure.
         boolean release = true;
         try {
+            HttpClientContext context = HttpClientContext.create();
+            context.setCredentialsProvider(credsProvider);
+            context.setAuthCache(authCache);
             HttpResponse httpResponse = getHttpClient().execute(httpUriRequest, context);
             int httpCode = httpResponse.getStatusLine().getStatusCode();
             if (httpCode == HttpURLConnection.HTTP_OK
@@ -317,7 +321,7 @@ public class AGHTTPClient implements AutoCloseable {
      * @param password the password
      */
     public void setUsernameAndPassword(String username, String password) {
-        context = HttpClientContext.create();
+
 
         if (username != null && password != null) {
             logger.debug("Setting username '{}' and password for server at {}.", username, serverURL);
@@ -328,11 +332,9 @@ public class AGHTTPClient implements AutoCloseable {
                 credsProvider.setCredentials(AuthScope.ANY,
                                              new UsernamePasswordCredentials(username, password));
 
-                AuthCache authCache = new BasicAuthCache();
+                authCache = new BasicAuthCache();
                 authCache.put(targetHost, new BasicScheme());
 
-                context.setCredentialsProvider(credsProvider);
-                context.setAuthCache(authCache);
             } catch (URISyntaxException e) {
                 logger.warn("Unable to set username and password for malformed URL " + serverURL, e);
             }
