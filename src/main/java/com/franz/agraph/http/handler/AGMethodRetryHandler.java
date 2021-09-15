@@ -1,6 +1,7 @@
 package com.franz.agraph.http.handler;
 
 import org.apache.http.HttpRequest;
+import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.protocol.HttpContext;
@@ -23,6 +24,12 @@ public class AGMethodRetryHandler extends DefaultHttpRequestRetryHandler {
         //        but might not always be for AG.
         final HttpClientContext clientContext = HttpClientContext.adapt(context);
         final HttpRequest request = clientContext.getRequest();
+
+        // It can take some time for sessions to be created. Could be a stale connection!
+        if (executionCount < 10 && request.getRequestLine().getUri().startsWith("/sessions/") && (exception instanceof NoHttpResponseException)) {
+            return true;
+        }
+
         if ((executionCount == 1) && (exception instanceof java.net.SocketException)) {
                 switch (request.getRequestLine().getMethod()) {
                 case "GET":
