@@ -272,8 +272,10 @@ public class AGHTTPClient implements AutoCloseable {
         HttpResponse httpResponse = null;
         try {
             HttpClientContext context = HttpClientContext.create();
-            context.setCredentialsProvider(credsProvider);
-            context.setAuthCache(authCache);
+            if (credsProvider != null && authCache != null) {
+                context.setCredentialsProvider(credsProvider);
+                context.setAuthCache(authCache);
+            }
             httpResponse = getHttpClient().execute(httpUriRequest, context);
             int httpCode = httpResponse.getStatusLine().getStatusCode();
             if (httpCode == HttpURLConnection.HTTP_OK
@@ -321,8 +323,6 @@ public class AGHTTPClient implements AutoCloseable {
      * @param password the password
      */
     public void setUsernameAndPassword(String username, String password) {
-
-
         if (username != null && password != null) {
             logger.debug("Setting username '{}' and password for server at {}.", username, serverURL);
             try {
@@ -338,6 +338,9 @@ public class AGHTTPClient implements AutoCloseable {
             } catch (URISyntaxException e) {
                 logger.warn("Unable to set username and password for malformed URL " + serverURL, e);
             }
+        } else {
+            credsProvider = null;
+            authCache = null;
         }
     }
 
