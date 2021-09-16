@@ -38,6 +38,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.eclipse.rdf4j.http.protocol.Protocol;
 import org.eclipse.rdf4j.http.protocol.UnauthorizedException;
 import org.eclipse.rdf4j.query.TupleQueryResult;
@@ -268,11 +269,12 @@ public class AGHTTPClient implements AutoCloseable {
         // Will be set to false if the handler takes ownership of the method object.
         // Otherwise we must close the method by the end of this procedure.
         boolean release = true;
+        HttpResponse httpResponse = null;
         try {
             HttpClientContext context = HttpClientContext.create();
             context.setCredentialsProvider(credsProvider);
             context.setAuthCache(authCache);
-            HttpResponse httpResponse = getHttpClient().execute(httpUriRequest, context);
+            httpResponse = getHttpClient().execute(httpUriRequest, context);
             int httpCode = httpResponse.getStatusLine().getStatusCode();
             if (httpCode == HttpURLConnection.HTTP_OK
                 || httpCode == HttpURLConnection.HTTP_NO_CONTENT) {
@@ -300,12 +302,10 @@ public class AGHTTPClient implements AutoCloseable {
         } catch (IOException e) {
             throw new AGHttpException(e);
         } finally {
-            if (release) {
+            if (release && httpResponse != null) {
                 // Note: this will read the response body if necessary
                 // to allow connection reuse.
-                //method.releaseConnection();
-                //mManager.releaseConnection();
-                //mManager.releaseConnection(httpClient);
+                EntityUtils.consumeQuietly(httpResponse.getEntity());
             }
         }
     }
